@@ -38,10 +38,20 @@ When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
 end
 
 Then /I should see all the movies/ do
-  # Make sure that all the movies in the app are visible in the table
-  Movie.select(:name).distinct.each do |movie_name|
-    page.should have_content(movie_name)
-  end
-  assert Movie.find(:all).length == page.body.scan(/<tr>/).length
+  paeg_movie_count = page.body.scan(/<tr>/).length-1
+  db_movie_count = Movie.count
+  paeg_movie_count.should == db_movie_count
   # fail "Unimplemented"
+end
+
+Then /I should see movies of ratings: (.*)/ do |rating_list|
+  rating_list.split(",").each do |rating|
+    page.body.should match(/<td>#{rating}<\/td>/)
+  end
+end
+
+Then /I should not see movies of ratings: (.*)/ do |rating_list|
+  rating_list.split(",").each do |rating|
+    page.body.should_not match(/<td>#{rating}<\/td>/)
+  end
 end
